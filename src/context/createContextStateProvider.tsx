@@ -1,4 +1,15 @@
 import React, {createContext, Dispatch, SetStateAction, useContext, useMemo, useState} from "react";
+import {merge} from 'lodash';
+
+export type RecursivePartial<T> = {
+    [P in keyof T]?: RecursivePartial<T[P]>;
+};
+
+export type ContextActions<State>  = {
+    setState: Dispatch<SetStateAction<State>>;
+    mergeState: Dispatch<SetStateAction<RecursivePartial<State>>>;
+    deepMerge: Dispatch<SetStateAction<RecursivePartial<State>>>;
+}
 
 /**
  * Supports creation of Context Provider, state and a set of constrained state manipulations (ie. actions).
@@ -6,7 +17,7 @@ import React, {createContext, Dispatch, SetStateAction, useContext, useMemo, use
  * @param actions set of actions that can be applied to this context
  * @param initialState initial context state
  */
-export function createContexStateProvider<State, Actions>(actions: (_: Dispatch<SetStateAction<State>>) => Actions,
+export function createContexStateProvider<State, Actions>(actions: (_: ContextActions<State>) => Actions,
                                                           initialState: State) {
 
     const ContextState = createContext<State | undefined>(undefined);
@@ -37,8 +48,28 @@ export function createContexStateProvider<State, Actions>(actions: (_: Dispatch<
     const Provider: React.FunctionComponent = ({children}) => {
         const [state, setState] = useState<State>(initialState);
 
+        const stateActions = useMemo(() => {
+            const mergeState = (setStateAction: SetStateAction<State>) => {
+                if(typeof(setStateAction) === 'function') {
+                    // @ts-ignore
+                    setState((oldState: State) => ({...oldState, ...setStateAction(oldState)}) );
+                } else {
+                    setState((oldState: State) => ({...oldState, ...setStateAction}));
+                }
+            };
+            const deepMerge = (setStateAction: SetStateAction<State>) => {
+                if(typeof(setStateAction) === 'function') {
+                    // @ts-ignore
+                    setState((oldState: State) => merge({}, oldState, setStateAction(oldState)));
+                } else {
+                    setState((oldState: State) => merge({}, oldState, setStateAction));
+                }
+            };
+            return actions({setState, mergeState, deepMerge});
+        }, [setState]);
+
         return (
-            <ContextActions.Provider value={useMemo(() => actions(setState), [setState])}>
+            <ContextActions.Provider value={stateActions}>
                 <ContextState.Provider value={state}>
                     {children}
                 </ContextState.Provider>

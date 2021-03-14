@@ -1,8 +1,7 @@
 import Dictionary from "../models/Dictionary";
 import Status from "../constants/Status";
-import {Dispatch, SetStateAction} from "react";
 import {keyBy} from 'lodash';
-import {createContexStateProvider} from "./createContextStateProvider";
+import {ContextActions, createContexStateProvider} from "./createContextStateProvider";
 import User from "../models/User"
 import * as api from "../api/remoteApi";
 import {callAsync} from "../utilities/callAsync";
@@ -19,40 +18,24 @@ const INITIAL_STATE: Users = {
 };
 
 
-const userActions = (setState: Dispatch<SetStateAction<Users>>) => ({
+const userActions = ({mergeState}: ContextActions<Users>) => ({
     setUsers: (users: User[]) => {
-        setState((state) => ({
-            ...state,
-            users: keyBy(users, 'id')
-        }));
+        mergeState({users: keyBy(users, 'id')});
     },
     setStatus: (fetchStatus: Status) => {
-        setState((state) => ({
-            ...state,
-            fetchStatus
-        }));
+        mergeState({fetchStatus});
     },
     setSelectedUser: (userId: number) => {
-        setState((state) => ({
-            ...state,
-            selectedUser: userId
-        }));
+        mergeState({selectedUser: userId});
     },
     fetchUsers: () => {
-        setState((state) => ({
-            ...state,
-            fetchStatus: Status.BUSY
-        }));
+        mergeState({fetchStatus: Status.BUSY});
         callAsync(() => api.fetchUsers(),
-                  (users: User[]) => setState((state) => ({
-                      ...state,
+                  (users: User[]) => mergeState({
                       fetchStatus: Status.SUCCESS,
                       users: keyBy(users, 'id')
-                  })),
-                  (_: string) => setState((state) => ({
-                      ...state,
-                      fetchStatus: Status.FAILED
-                  })))
+                  }),
+                  (_: string) => mergeState({fetchStatus: Status.FAILED}))
     }
 });
 

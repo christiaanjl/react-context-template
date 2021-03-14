@@ -1,9 +1,8 @@
 import Dictionary from "../models/Dictionary";
 import Todo from "../models/Todo";
 import Status from "../constants/Status";
-import {Dispatch, SetStateAction} from "react";
-import {keyBy, merge} from 'lodash';
-import {createContexStateProvider} from "./createContextStateProvider";
+import {keyBy} from 'lodash';
+import {ContextActions, createContexStateProvider} from "./createContextStateProvider";
 import {callAsync} from "../utilities/callAsync";
 import * as api from '../api/remoteApi'
 
@@ -18,42 +17,24 @@ const INITIAL_STATE: Todos = {
 };
 
 
-const todoActions = (setState: Dispatch<SetStateAction<Todos>>) => ({
+const todoActions = ({mergeState, deepMerge}: ContextActions<Todos>) => ({
     setTodos: (todos: Todo[]) => {
-       setState((state) => ({
-           ...state,
-           todos: keyBy(todos, 'id')
-       }));
+        mergeState({todos: keyBy(todos, 'id')});
     },
     setStatus: (fetchStatus: Status) => {
-       setState((state) => ({
-           ...state,
-           fetchStatus
-       }));
+        mergeState({fetchStatus});
     },
     setCompleted: (id: number, completed: boolean) => {
-        setState((state) => (
-            merge({}, state, {
-                todos: {
-                    [id]: {completed}
-                }
-        })));
+        deepMerge({todos: {[id]: {completed}}});
     },
     fetchTodos: (id: number) => {
-       setState((state) => ({
-           ...state,
-           fetchStatus: Status.BUSY
-       }));
-       callAsync<Todo[]>(() => api.fetchTodos(id),
-                         (todos: Todo[]) => setState((state) => ({
-                             ...state,
+        mergeState({fetchStatus: Status.BUSY});
+        callAsync<Todo[]>(() => api.fetchTodos(id),
+                         (todos: Todo[]) => mergeState({
                              fetchStatus: Status.SUCCESS,
                              todos: keyBy(todos, 'id')
-                         })),
-                         (_ : string) => setState((state) => ({
-                             ...state,
-                             fetchStatus: Status.FAILED
-                         })));
+                         }),
+                         (_ : string) => mergeState({fetchStatus: Status.FAILED}));
    }
 });
 
