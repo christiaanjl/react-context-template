@@ -1,7 +1,7 @@
 import Dictionary from "../models/Dictionary";
 import Status from "../constants/Status";
 import {keyBy} from 'lodash';
-import {ContextActions, createContexStateProvider} from "./createContextStateProvider";
+import {StateActions, createContextStateProvider} from "./createContextStateProvider";
 import User from "../models/User"
 import * as api from "../api/remoteApi";
 import {callAsync} from "../utilities/callAsync";
@@ -18,7 +18,7 @@ const INITIAL_STATE: Users = {
 };
 
 
-const userActions = ({mergeState}: ContextActions<Users>) => ({
+const userActions = ({mergeState}: StateActions<Users>) => ({
     setUsers: (users: User[]) => {
         mergeState({users: keyBy(users, 'id')});
     },
@@ -44,4 +44,4 @@ export const {
     useContextState,
     useContextActions,
     useContextAll
-} = createContexStateProvider<Users, ReturnType<typeof userActions>>(userActions, INITIAL_STATE);
+} = createContextStateProvider<Users, ReturnType<typeof userActions>>(userActions, INITIAL_STATE);

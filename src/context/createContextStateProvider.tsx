@@ -1,11 +1,11 @@
 import React, {createContext, Dispatch, SetStateAction, useContext, useMemo, useState} from "react";
-import {merge} from 'lodash';
+import {merge, isFunction} from 'lodash';
 
 export type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
 };
 
-export type ContextActions<State>  = {
+export type StateActions<State>  = {
     setState: Dispatch<SetStateAction<State>>;
     mergeState: Dispatch<SetStateAction<RecursivePartial<State>>>;
     deepMerge: Dispatch<SetStateAction<RecursivePartial<State>>>;
@@ -17,8 +17,8 @@ export type ContextActions<State>  = {
  * @param actions set of actions that can be applied to this context
  * @param initialState initial context state
  */
-export function createContexStateProvider<State, Actions>(actions: (_: ContextActions<State>) => Actions,
-                                                          initialState: State) {
+export function createContextStateProvider<State, Actions>(actions: (_: StateActions<State>) => Actions,
+                                                           initialState: State) {
 
     const ContextState = createContext<State | undefined>(undefined);
     const ContextActions = createContext<Actions | undefined>(undefined);
@@ -50,7 +50,7 @@ export function createContexStateProvider<State, Actions>(actions: (_: ContextAc
 
         const stateActions = useMemo(() => {
             const mergeState = (setStateAction: SetStateAction<State>) => {
-                if(typeof(setStateAction) === 'function') {
+                if(isFunction(setStateAction)) {
                     // @ts-ignore
                     setState((oldState: State) => ({...oldState, ...setStateAction(oldState)}) );
                 } else {
@@ -58,7 +58,7 @@ export function createContexStateProvider<State, Actions>(actions: (_: ContextAc
                 }
             };
             const deepMerge = (setStateAction: SetStateAction<State>) => {
-                if(typeof(setStateAction) === 'function') {
+                if(isFunction(setStateAction)) {
                     // @ts-ignore
                     setState((oldState: State) => merge({}, oldState, setStateAction(oldState)));
                 } else {

@@ -2,7 +2,7 @@ import Dictionary from "../models/Dictionary";
 import Todo from "../models/Todo";
 import Status from "../constants/Status";
 import {keyBy} from 'lodash';
-import {ContextActions, createContexStateProvider} from "./createContextStateProvider";
+import {StateActions, createContextStateProvider} from "./createContextStateProvider";
 import {callAsync} from "../utilities/callAsync";
 import * as api from '../api/remoteApi'
 
@@ -17,7 +17,7 @@ const INITIAL_STATE: Todos = {
 };
 
 
-const todoActions = ({mergeState, deepMerge}: ContextActions<Todos>) => ({
+const todoActions = ({mergeState, deepMerge}: StateActions<Todos>) => ({
     setTodos: (todos: Todo[]) => {
         mergeState({todos: keyBy(todos, 'id')});
     },
@@ -44,4 +44,4 @@ export const {
     useContextState,
     useContextActions,
     useContextAll
-} = createContexStateProvider<Todos, ReturnType<typeof todoActions>>(todoActions, INITIAL_STATE);
+} = createContextStateProvider<Todos, ReturnType<typeof todoActions>>(todoActions, INITIAL_STATE);
