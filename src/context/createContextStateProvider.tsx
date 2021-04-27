@@ -1,7 +1,7 @@
 import React, {createContext, Dispatch, SetStateAction, useContext, useMemo, useState} from "react";
 import {merge, isFunction} from 'lodash';
 
-export type RecursivePartial<T> = {
+type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;
 };
 

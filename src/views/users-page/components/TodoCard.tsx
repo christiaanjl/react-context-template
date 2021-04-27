@@ -11,7 +11,7 @@ interface IProps {
 }
 
 const TodoCard: React.FunctionComponent<IProps> = (props) => {
-    const {todo: {id, completed}} = props;
+    const {todo: {id, completed, title}} = props;
 
     const classes = useStyles();
     const {setCompleted} = useContextActions();
@@ -21,11 +21,11 @@ const TodoCard: React.FunctionComponent<IProps> = (props) => {
             <IconButton onClick={() => setCompleted(id, !completed)}
                         disableRipple
                         className={classes.button}>
-                { props.todo.completed ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon /> }
+                { completed ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon /> }
             </IconButton>
             {
                 <div style={{padding: 5}} >
-                    { props.todo.title }
+                    { title }
                 </div>
             }
         </div>
