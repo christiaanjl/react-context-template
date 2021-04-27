@@ -4,7 +4,12 @@
 
 An amalgamation of ideas to form a sensible set of conventions for larger scale React projects. Includes example code to guide coding conventions and program structure for new projects.
 
-For React-Redux template see [here](https://github.com/christiaanjl/react-redux-template)
+Of particular interest is [createContextStateProvider](./src/context) which provides a state abstraction similar to useReducer without the need for action creators/reducers.
+
+Other templates:
+* [Redux](https://github.com/christiaanjl/react-redux-template)
+* [Redux-Saga](https://github.com/christiaanjl/react-saga-framework)
+* [Angular](https://github.com/christiaanjl/angular-template)
 
 ## UI
 Initial project fetches users and their to-do items from [jsonplaceholder](https://jsonplaceholder.typicode.com)
